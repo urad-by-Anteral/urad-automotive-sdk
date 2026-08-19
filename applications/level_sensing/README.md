@@ -18,7 +18,7 @@ your host supports:
 
 | Firmware ([Releases](../../../../releases)) | Data UART baud rate | Use case |
 |---|---|---|
-| `uRAD_LevelSensing_AWR1843AoP.bin` | 921600 (standard) | Default; used by the Python client |
+| `uRAD_LevelSensing_AWR1843AoP_921600_br.bin` | 921600 (standard) | Default; used by the Python client |
 | `uRAD_LevelSensing_AWR1843AoP_115200_br.bin` | 115200 | Arduino and hosts without high-speed UART |
 
 The control UART is always 115200 baud.

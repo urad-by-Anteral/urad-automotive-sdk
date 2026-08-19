@@ -7,7 +7,7 @@ stored in the git history.
 | Binary | Application | Notes |
 |---|---|---|
 | `out_of_box_1843_aop.bin` | Out-of-box demo | Point cloud streaming; used with [urad-mmwave](https://github.com/urad-by-Anteral/urad-mmwave-core) |
-| `uRAD_LevelSensing_AWR1843AoP.bin` | Level sensing | Data UART at 921600 baud (default) |
+| `uRAD_LevelSensing_AWR1843AoP_921600_br.bin` | Level sensing | Data UART at 921600 baud (default) |
 | `uRAD_LevelSensing_AWR1843AoP_115200_br.bin` | Level sensing | Data UART at 115200 baud (for Arduino/slow hosts) |
 
 ## Flashing
