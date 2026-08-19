@@ -56,7 +56,7 @@ aplicación e informes de rendimiento, están en
 La documentación de TI que antes acompañaba a este SDK está disponible en TI:
 la guía del [mmWave SDK](https://www.ti.com/tool/MMWAVE-SDK) (incluido el
 formato de datos UART de la demo out-of-box) y el
-[TI Resource Explorer](https://dev.ti.com/tir/).
+[TI Resource Explorer](https://dev.ti.com).
 
 ## Licencia
 
