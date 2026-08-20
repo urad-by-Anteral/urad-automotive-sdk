@@ -13,7 +13,7 @@ a 77 GHz mmWave evaluation board based on the Texas Instruments **AWR1843AoP**
 | [`docs/`](docs) | User manual and Raspberry Pi adapter guide (EN/ES) |
 | [`mechanical/`](mechanical) | 3D model of the board (STEP) |
 | [`firmware/`](firmware) | Firmware flashing guide; binaries are in [Releases](../../releases) |
-| [`applications/`](applications) | Product applications (level sensing) |
+| [`applications/`](applications) | Product applications (level sensing, medium range radar) |
 
 ## Quick start (out-of-box demo)
 
@@ -50,6 +50,19 @@ urad-level-sensing --model AWR --control-port COM8 --data-port COM7 --max-distan
 C++ and Arduino reference implementations, plus the application notes and
 performance reports, are in
 [`applications/level_sensing/`](applications/level_sensing).
+
+### Medium Range Radar (MRR)
+
+TI's ADAS demo with two concurrent subframes — 120 m medium range with
+tracking and 30 m ultra short range with clustering and parking assist.
+The firmware uses a compiled-in configuration and streams from boot
+(receive-only client):
+
+```bash
+urad-mrr --data-port COM7
+```
+
+See [`applications/medium_range_radar/`](applications/medium_range_radar).
 
 ## Texas Instruments resources
 

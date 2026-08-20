@@ -13,7 +13,7 @@ Instruments (antena en el encapsulado).
 | [`docs/`](docs) | Manual de usuario y guía del adaptador para Raspberry Pi (EN/ES) |
 | [`mechanical/`](mechanical) | Modelo 3D de la placa (STEP) |
 | [`firmware/`](firmware) | Guía de flasheo; los binarios están en [Releases](../../releases) |
-| [`applications/`](applications) | Aplicaciones del producto (level sensing) |
+| [`applications/`](applications) | Aplicaciones del producto (level sensing, radar de medio alcance) |
 
 ## Inicio rápido (demo out-of-box)
 
@@ -50,6 +50,19 @@ urad-level-sensing --model AWR --control-port COM8 --data-port COM7 --max-distan
 Las implementaciones de referencia en C++ y Arduino, junto con las notas de
 aplicación e informes de rendimiento, están en
 [`applications/level_sensing/`](applications/level_sensing).
+
+### Radar de medio alcance (Medium Range Radar, MRR)
+
+Demo ADAS de TI con dos subtramas simultáneas: medio alcance de 120 m con
+tracking y alcance ultracorto de 30 m con clustering y asistencia al
+aparcamiento. El firmware lleva la configuración compilada y emite desde el
+arranque (cliente solo de recepción):
+
+```bash
+urad-mrr --data-port COM7
+```
+
+Véase [`applications/medium_range_radar/`](applications/medium_range_radar).
 
 ## Recursos de Texas Instruments
 
