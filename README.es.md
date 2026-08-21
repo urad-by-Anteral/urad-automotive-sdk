@@ -51,6 +51,7 @@ Las implementaciones de referencia en C++ y Arduino, junto con las notas de
 aplicación e informes de rendimiento, están en
 [`applications/level_sensing/`](applications/level_sensing).
 
+
 ## Recursos de Texas Instruments
 
 La documentación de TI que antes acompañaba a este SDK está disponible en TI:
