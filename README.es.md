@@ -47,8 +47,8 @@ dedicado. El cliente Python forma parte del SDK común:
 urad-level-sensing --model AWR --control-port COM8 --data-port COM7 --max-distance 12
 ```
 
-Las implementaciones de referencia en C++ y Arduino, junto con las notas de
-aplicación e informes de rendimiento, están en
+Las implementaciones de referencia en C++ y Arduino, junto con el informe de
+rendimiento, están en
 [`applications/level_sensing/`](applications/level_sensing).
 
 
