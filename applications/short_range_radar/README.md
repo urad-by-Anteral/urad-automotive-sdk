@@ -103,11 +103,12 @@ urad-short-range-radar --replay output/PointCloud.txt --gui --replay-speed 2
 | `--replay FILE` | — | Replay a recorded `PointCloud.txt` instead of reading the radar |
 | `--control-port`, `--data-port`, `--single-port` | from the JSON | Override the serial ports |
 | `--chirp FILE` | from the JSON | Use another chirp configuration |
+| `--tx {1,2,3}` | product default | Number of transmitters: selects `short_range_radar_<N>tx.cfg` (section 5) |
 | `--max-range METERS` | 6 | Maximum detection range, up to 10 m |
 | `--fov {30,90,150}` | 150 | Field of view in degrees, centered on boresight |
 | `--min-hits N` | 4 | Consecutive frames a zone must be hit to raise its alarm |
 | `--replay-speed X` | 1 | Replay pace; `0` = as fast as possible |
-| `--output-dir DIR` | `./output` | Where the output files are written |
+| `--output-dir DIR` | `./output` | Where the output files are written (section 6) |
 | `--no-save` | — | Disable file output |
 | `--print-points` | — | Print every detected point |
 | `--gui` | — | Live top view (requires the `gui` extra) |
@@ -115,8 +116,14 @@ urad-short-range-radar --replay output/PointCloud.txt --gui --replay-speed 2
 | `--gpio-reset-pin PIN` | — | Reset the radar through a GPIO before configuring (Raspberry Pi) |
 
 The console prints one line per frame with the number of points and, when
-there are alarms, the number of detected zones and the nearest one, e.g.
-`frame 412: 7 points, 2 zone(s) detected, nearest 1-2 m, -15..+15 deg`.
+there are alarms, the number of detected zones, the nearest one and the
+nearest detection of every sector (`-` = no alarm in that sector), plus a
+line for every zone that switches on or off:
+
+```
+frame 412: 7 points, 2 zone(s) detected, nearest 1-2 m, -15..+15 deg | sectors [m]: -  -  1.42  2.31  -
+  zone ON  1-2 m, -15..+15 deg
+```
 
 ### Live view (`--gui`)
 
@@ -125,70 +132,146 @@ meter and the sector boundaries inside the field of view) and the point
 cloud in black, with the marker size proportional to the SNR. Every
 detected zone is filled with a color that encodes proximity: **red** for
 the nearest third of the monitored range, **orange** for the middle third
-and **yellow** for the farthest. Close the window to stop the radar.
+and **yellow** for the farthest. Each sector with an alarm shows the
+distance to its nearest detection next to the outer arc. Close the window
+to stop the radar.
 
-## 5. Radar configuration
+## 5. Radar configuration and TX modes
 
-[`config_radar.json`](config_radar.json) sets the serial ports and points
-to [`chirp_config/short_range_radar.cfg`](chirp_config/short_range_radar.cfg),
-a regular out-of-box configuration for the `xWR18xx_AOP` platform.
+[`config_radar.json`](config_radar.json) sets the serial ports and the
+default chirp file. Each file is a regular out-of-box configuration for the
+`xWR18xx_AOP` platform; choose the number of transmitters with `--tx`:
 
-On the AWR1843AoP the 4 RX antennas are in a horizontal line (azimuth) and
-the 3 TX in a vertical line (elevation). One TX therefore already gives
-the full azimuth aperture — 4 virtual antennas, ≈ 30° resolution, the same
-as with the three TX — and the other two would only add elevation, which
-the zone detection does not use. The configuration uses **1 Tx × 4 Rx**:
-there is no TDM-MIMO, so fast targets cannot distort the angle, and the
-reported z is always 0. The waveform is the Short Range Radar chirp proven
-on the uRAD Automotive HPA (same AWR1843 chip):
+| `--tx` | File | Antennas used |
+|---|---|---|
+| 1 (default) | [`short_range_radar_1tx.cfg`](chirp_config/short_range_radar_1tx.cfg) | TX0 + 4 RX |
+| 2 | [`short_range_radar_2tx.cfg`](chirp_config/short_range_radar_2tx.cfg) | TX0, TX1 + 4 RX (experimental) |
+| 3 | [`short_range_radar_3tx.cfg`](chirp_config/short_range_radar_3tx.cfg) | TX0, TX1, TX2 + 4 RX |
 
-| Parameter | Value |
-|---|---|
-| Antennas | 1 Tx × 4 Rx (4 virtual antennas in azimuth, ≈ 30°) |
-| Chirp | 77 → 81 GHz, slope 20 MHz/µs, period 208 µs |
-| Sampling | 384 complex samples at 2 Msps (3.84 GHz sampled bandwidth) |
-| Range | up to 12 m, resolution 3.9 cm |
-| Radial velocity | ±4.55 m/s, resolution 0.29 m/s |
-| Frame | 32 chirps, 33.33 ms (30 fps) |
-| Static clutter removal | disabled |
+```bash
+urad-short-range-radar --config config_radar.json --tx 3 --gui
+```
 
-It was checked with the TI mmWave Sensing Estimator 2.5.1 (xWR1843,
-board xWR1843AOP) with no out-of-bounds parameters.
+### Antennas and angular resolution
 
-Before sending it, `urad-short-range-radar` rewrites two lines from the
-command line options, so the firmware only reports points inside the
+On the AWR1843AoP the **4 RX antennas are in a horizontal line** and the
+**3 TX antennas in a vertical line**. The azimuth aperture therefore comes
+entirely from the RX: one TX already gives the 4 virtual antennas in
+azimuth, and every additional TX adds a row in **elevation**.
+
+| Mode | Virtual array | Azimuth resolution | Elevation resolution |
+|---|---|---|---|
+| 1 TX | 4 × 1 | ≈ 29° (4 antennas) | none (z = 0) |
+| 2 TX | 4 × 2 | ≈ 29° | ≈ 57° (2 rows) |
+| 3 TX | 4 × 3 | ≈ 29° | ≈ 38° (3 rows) |
+
+The 3 TX figures are the ones of the uRAD Automotive datasheet and of the
+TI Visualizer (`xWR18xx_AOP`, "30 + 38"). For this application more TX do
+**not** improve the azimuth, only add elevation — so 1 TX is the default:
+same zones, three times the maximum velocity and no TDM angle errors.
+
+**2 TX is experimental**: it assumes TX0 and TX1 are adjacent (λ/2) in the
+vertical line, and the TI Visualizer only generates 3-TX configurations for
+this platform, so check on hardware that the out-of-box firmware treats the
+pair as an elevation array.
+
+Angular resolution at boresight is about 2/N radians (114.6°/N) for N
+virtual antennas spaced λ/2 in that plane, and it widens as 1/cos θ away
+from boresight (×2 at ±60°). The angle *accuracy* of a single target is
+much better than the resolution; resolution is the separation needed to
+see two targets of similar strength as two. The zone detection only uses
+azimuth: elevation fills in z (useful to tell floor or ceiling reflections
+apart), and without elevation z is always 0.
+
+### Waveform
+
+All three modes share one waveform, so the only difference between them is
+the number of transmitters. It was chosen to give the **highest maximum
+velocity that still covers 12 m with 5.9 cm range resolution** inside the
+AWR1843 limits (checked with the TI mmWave Sensing Estimator 2.5.1):
+
+| Parameter | Value | Why |
+|---|---|---|
+| Slope | 100 MHz/µs | chip maximum |
+| Sampling | 256 complex samples at 10 Msps (25.6 µs) | 12 m needs fs ≥ slope/10 (max range = 0.8·fs·c/2·slope) |
+| Ramp | idle 7 µs + ramp end 34 µs = **chirp period 41 µs** | ADC start 7 µs + 25.6 µs + 10-sample margin |
+| RF | 77.0 → 80.4 GHz (2.56 GHz sampled) | within 76-81 GHz |
+| Range | up to 12 m, resolution 5.9 cm | |
+| Frame | 33.33 ms (30 fps); 64 loops with 1 TX, 32 loops with 2 or 3 TX | |
+
+### Maximum velocity
+
+With time-division MIMO the transmitters take turns, so the time between
+two chirps of the *same* TX is N_TX × chirp period and the unambiguous
+velocity is divided by the number of TX:
+
+v_max = c / (4 · f_c · N_TX · T_c), with f_c = 78.98 GHz (centre of the sampled sweep) and T_c = 41 µs
+
+| Mode | v_max (km/h) | Velocity resolution | Waveform limit (128 samples, 11.7 cm) |
+|---|---|---|---|
+| 1 TX | **±23.1 m/s** (83 km/h) | 0.72 m/s | ±34.4 m/s |
+| 2 TX | **±11.6 m/s** (42 km/h) | 0.72 m/s | ±17.2 m/s |
+| 3 TX | **±7.7 m/s** (28 km/h) | 0.48 m/s | ±11.5 m/s |
+
+The last column is the ceiling of the chip for the same 12 m range: halving
+the samples to 128 (11.7 cm range resolution) shortens the chirp to 27.8 µs.
+Above v_max the Doppler wraps around. With 1 TX this only corrupts the
+reported velocity; with 2 or 3 TX it also corrupts the **angle** (the
+firmware compensates the TX phase with the wrong velocity), so fast targets
+can land in the wrong sector. That is the price of the extra TX.
+
+### Sensitivity
+
+The short chirp samples 25.6 µs per chirp instead of the 192 µs of the
+original Short Range Radar chirp, so each frame integrates less energy:
+weak targets (a person at the far end of the grid) are detected at a
+somewhat shorter distance. If the scene is slow and sensitivity matters
+more than velocity, use
+[`chirp_config/short_range_radar_legacy.cfg`](chirp_config/short_range_radar_legacy.cfg)
+(1 TX, 20 MHz/µs, 384 samples at 2 Msps, 3.9 cm, ±4.55 m/s), the
+configuration of the original scripts.
+
+### Field of view
+
+Before sending the file, `urad-short-range-radar` rewrites two lines from
+the command line options, so the firmware only reports points inside the
 monitored area:
 
 - `aoaFovCfg -1 <-fov/2> <+fov/2> …` — azimuth limits.
 - `cfarFovCfg -1 0 0 <max-range>` — range gate.
 
 Any other out-of-box command (documented in the TI mmWave SDK user guide)
-can be changed by editing the `.cfg` file or passing another one with
+can be changed by editing a `.cfg` file or passing another one with
 `--chirp`; keep an `aoaFovCfg` line and a range `cfarFovCfg` line in it.
+All the files were checked with the TI mmWave Sensing Estimator 2.5.1
+(xWR1843, board xWR1843AOP): no out-of-bounds parameters.
 
 ## 6. Output files
 
-Unless `--no-save` is given, two files are appended under `--output-dir`
+Unless `--no-save` is given, four files are appended under `--output-dir`
 (one line per frame, ending with the host epoch timestamp in seconds):
 
 | File | Per-frame content |
 |---|---|
 | `PointCloud.txt` | For each point: x (m), y (m), z (m), v (m/s), SNR, noise (0.1 dB units) — then the timestamp. Frames without points are not written |
 | `DetectedZones.txt` | 50 zone flags (0/1): the 10 × 5 grid flattened row by row, from the farthest ring (9–10 m) to the nearest (0–1 m), each row with sectors 0 to 4 (−75° to +75°) — then the timestamp |
+| `SectorDistances.txt` | For each of the five sectors (−75° to +75°), the distance in meters to the nearest point in a **detected** zone of that sector, like a parking sensor; `-1` when the sector has no alarm — then the timestamp |
+| `ZoneEvents.txt` | One line per zone that switches state: `timestamp ON\|OFF ring sector` (ring 0 = 0-1 m, sector 0 = −75…−45°) |
 
-`PointCloud.txt` is the input of `--replay`; in replay mode only
-`DetectedZones.txt` is written, so the recording is never modified.
+`PointCloud.txt` is the input of `--replay`; in replay mode it is not
+written again, so the recording is never modified.
 
 ### Programmatic use
 
 ```python
-import numpy as np
-from urad_mmwave.apps.short_range_radar import GridConfig, ZoneDetector
+from urad_mmwave.apps.short_range_radar import GridConfig, ZoneMonitor
 
-detector = ZoneDetector(GridConfig(max_range=6, fov=150, min_hits=4))
-detected = detector.update(points)  # points: (n, 6) array x, y, z, v, snr, noise
-for ring, sector in np.argwhere(detected):
-    print(f"alarm in ring {ring} m, sector {sector}")
+monitor = ZoneMonitor(GridConfig(max_range=6, fov=150, min_hits=4))
+result = monitor.update(points)  # points: (n, 6) array x, y, z, v, snr, noise
+result.detected   # (10, 5) bool map of detected zones, ring 0 = 0-1 m
+result.distances  # nearest detection per sector in meters (NaN = none)
+for event in result.events:  # zones that switched on/off in this frame
+    print("ON " if event.active else "OFF", event.label)
 ```
 
 ## 7. UART/TLV protocol (for integrators)
