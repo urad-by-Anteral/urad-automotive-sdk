@@ -142,7 +142,7 @@ and RX phase compensation) with a short range waveform:
 | Chirp | 77.0 → 79.96 GHz, slope 50 MHz/µs, period 66.2 µs |
 | Sampling | 256 complex samples at 5 Msps (2.56 GHz sampled bandwidth) |
 | Range | up to 12 m, resolution 5.9 cm |
-| Radial velocity | ±4.90 m/s, resolution 0.61 m/s |
+| Radial velocity | ±4.80 m/s, resolution 0.60 m/s |
 | Frame | 16 loops × 3 Tx, 33.33 ms (30 fps) |
 | Static clutter removal | disabled |
 
