@@ -131,20 +131,29 @@ and **yellow** for the farthest. Close the window to stop the radar.
 
 [`config_radar.json`](config_radar.json) sets the serial ports and points
 to [`chirp_config/short_range_radar.cfg`](chirp_config/short_range_radar.cfg),
-a regular out-of-box configuration for the `xWR18xx_AOP` platform. It
-keeps the structure of the uRAD Automotive profile generated with the TI
-mmWave Demo Visualizer (3 Tx × 4 Rx in TDM-MIMO, which the antennas-on-
-package array needs for azimuth and elevation, and the default range bias
-and RX phase compensation) with a short range waveform:
+a regular out-of-box configuration for the `xWR18xx_AOP` platform.
+
+On the AWR1843AoP the 4 RX antennas are in a horizontal line (azimuth) and
+the 3 TX in a vertical line (elevation). One TX therefore already gives
+the full azimuth aperture — 4 virtual antennas, ≈ 30° resolution, the same
+as with the three TX — and the other two would only add elevation, which
+the zone detection does not use. The configuration uses **1 Tx × 4 Rx**:
+there is no TDM-MIMO, so fast targets cannot distort the angle, and the
+reported z is always 0. The waveform is the Short Range Radar chirp proven
+on the uRAD Automotive HPA (same AWR1843 chip):
 
 | Parameter | Value |
 |---|---|
-| Chirp | 77.0 → 79.96 GHz, slope 50 MHz/µs, period 66.2 µs |
-| Sampling | 256 complex samples at 5 Msps (2.56 GHz sampled bandwidth) |
-| Range | up to 12 m, resolution 5.9 cm |
-| Radial velocity | ±4.80 m/s, resolution 0.60 m/s |
-| Frame | 16 loops × 3 Tx, 33.33 ms (30 fps) |
+| Antennas | 1 Tx × 4 Rx (4 virtual antennas in azimuth, ≈ 30°) |
+| Chirp | 77 → 81 GHz, slope 20 MHz/µs, period 208 µs |
+| Sampling | 384 complex samples at 2 Msps (3.84 GHz sampled bandwidth) |
+| Range | up to 12 m, resolution 3.9 cm |
+| Radial velocity | ±4.55 m/s, resolution 0.29 m/s |
+| Frame | 32 chirps, 33.33 ms (30 fps) |
 | Static clutter removal | disabled |
+
+It was checked with the TI mmWave Sensing Estimator 2.5.1 (xWR1843,
+board xWR1843AOP) with no out-of-bounds parameters.
 
 Before sending it, `urad-short-range-radar` rewrites two lines from the
 command line options, so the firmware only reports points inside the
