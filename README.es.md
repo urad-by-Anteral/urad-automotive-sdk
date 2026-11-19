@@ -13,7 +13,7 @@ Instruments (antena en el encapsulado).
 | [`docs/`](docs) | Manual de usuario y guía del adaptador para Raspberry Pi (EN/ES) |
 | [`mechanical/`](mechanical) | Modelo 3D de la placa (STEP) |
 | [`firmware/`](firmware) | Guía de flasheo; los binarios están en [Releases](../../releases) |
-| [`applications/`](applications) | Aplicaciones del producto (level sensing) |
+| [`applications/`](applications) | Aplicaciones del producto (level sensing, short range radar) |
 
 ## Inicio rápido (demo out-of-box)
 
@@ -50,6 +50,20 @@ urad-level-sensing --model AWR --control-port COM8 --data-port COM7 --max-distan
 Las implementaciones de referencia en C++ y Arduino, junto con el informe de
 rendimiento, están en
 [`applications/level_sensing/`](applications/level_sensing).
+
+### Short Range Radar
+
+Detección de objetos por zonas: la nube de puntos se acumula en una
+rejilla de anillos de 1 m por sectores de 30° y una zona da la alarma tras
+varias detecciones consecutivas. Funciona sobre el firmware out-of-box,
+con el cliente `urad-short-range-radar` de urad-mmwave (vista en tiempo
+real con `--gui` y reproducción de grabaciones con `--replay`):
+
+```bash
+urad-short-range-radar --config applications/short_range_radar/config_radar.json --gui
+```
+
+Véase [`applications/short_range_radar/`](applications/short_range_radar).
 
 
 ## Recursos de Texas Instruments

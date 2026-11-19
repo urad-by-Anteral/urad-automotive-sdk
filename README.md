@@ -13,7 +13,7 @@ a 77 GHz mmWave evaluation board based on the Texas Instruments **AWR1843AoP**
 | [`docs/`](docs) | User manual and Raspberry Pi adapter guide (EN/ES) |
 | [`mechanical/`](mechanical) | 3D model of the board (STEP) |
 | [`firmware/`](firmware) | Firmware flashing guide; binaries are in [Releases](../../releases) |
-| [`applications/`](applications) | Product applications (level sensing) |
+| [`applications/`](applications) | Product applications (level sensing, short range radar) |
 
 ## Quick start (out-of-box demo)
 
@@ -51,6 +51,19 @@ C++ and Arduino reference implementations, plus the performance report, are
 in
 [`applications/level_sensing/`](applications/level_sensing).
 
+### Short Range Radar
+
+Zone-based object detection: the point cloud is accumulated on a grid of
+1 m rings by 30° sectors and a zone raises an alarm after several
+consecutive hits. Runs on the out-of-box firmware, with the
+`urad-short-range-radar` client of urad-mmwave (live view with `--gui`,
+replay of recordings with `--replay`):
+
+```bash
+urad-short-range-radar --config applications/short_range_radar/config_radar.json --gui
+```
+
+See [`applications/short_range_radar/`](applications/short_range_radar).
 
 ## Texas Instruments resources
 
