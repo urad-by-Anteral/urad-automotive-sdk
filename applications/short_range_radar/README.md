@@ -145,7 +145,7 @@ default chirp file. Each file is a regular out-of-box configuration for the
 | `--tx` | File | Antennas used |
 |---|---|---|
 | 1 (default) | [`short_range_radar_1tx.cfg`](chirp_config/short_range_radar_1tx.cfg) | TX0 + 4 RX |
-| 2 | [`short_range_radar_2tx.cfg`](chirp_config/short_range_radar_2tx.cfg) | TX0, TX1 + 4 RX (experimental) |
+| 2 | [`short_range_radar_2tx.cfg`](chirp_config/short_range_radar_2tx.cfg) | TX0, TX1 + 4 RX |
 | 3 | [`short_range_radar_3tx.cfg`](chirp_config/short_range_radar_3tx.cfg) | TX0, TX1, TX2 + 4 RX |
 
 ```bash
@@ -169,11 +169,6 @@ The 3 TX figures are the ones of the uRAD Automotive datasheet and of the
 TI Visualizer (`xWR18xx_AOP`, "30 + 38"). For this application more TX do
 **not** improve the azimuth, only add elevation — so 1 TX is the default:
 same zones, three times the maximum velocity and no TDM angle errors.
-
-**2 TX is experimental**: it assumes TX0 and TX1 are adjacent (λ/2) in the
-vertical line, and the TI Visualizer only generates 3-TX configurations for
-this platform, so check on hardware that the out-of-box firmware treats the
-pair as an elevation array.
 
 Angular resolution at boresight is about 2/N radians (114.6°/N) for N
 virtual antennas spaced λ/2 in that plane, and it widens as 1/cos θ away
