@@ -13,7 +13,7 @@ a 77 GHz mmWave evaluation board based on the Texas Instruments **AWR1843AoP**
 | [`docs/`](docs) | User manual and Raspberry Pi adapter guide (EN/ES) |
 | [`mechanical/`](mechanical) | 3D model of the board (STEP) |
 | [`firmware/`](firmware) | Firmware flashing guide; binaries are in [Releases](../../releases) |
-| [`applications/`](applications) | Product applications (level sensing, short range radar) |
+| [`applications/`](applications) | Product applications (level sensing, short range radar, automated parking) |
 
 ## Quick start (out-of-box demo)
 
@@ -64,6 +64,19 @@ urad-short-range-radar --config applications/short_range_radar/config_radar.json
 ```
 
 See [`applications/short_range_radar/`](applications/short_range_radar).
+
+### Automated Parking
+
+TI's Automated Parking lab: one radar covers a long range 2D zone (up to
+50 m) and a short range 3D zone (up to 10 m, with the height of every point)
+using two subframes. Flash `xwr18xx_mmw_aop_demo.bin` from the Releases and run the
+`urad-parking` client of urad-mmwave:
+
+```bash
+urad-parking --config applications/automated_parking/config_radar.json --gui
+```
+
+See [`applications/automated_parking/`](applications/automated_parking).
 
 ## Texas Instruments resources
 

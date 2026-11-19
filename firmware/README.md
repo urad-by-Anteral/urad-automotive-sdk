@@ -9,6 +9,7 @@ stored in the git history.
 | `out_of_box_1843_aop.bin` | Out-of-box demo | Point cloud streaming; used with [urad-mmwave](https://github.com/urad-by-Anteral/urad-mmwave-core) |
 | `uRAD_LevelSensing_AWR1843AoP_921600_br.bin` | Level sensing | Data UART at 921600 baud (default) |
 | `uRAD_LevelSensing_AWR1843AoP_115200_br.bin` | Level sensing | Data UART at 115200 baud (for Arduino/slow hosts) |
+| `xwr18xx_mmw_aop_demo.bin` | [Automated Parking](../applications/automated_parking) | TI Radar Toolbox 4.00.00.05 prebuilt binary for the AWR1843AOP, unmodified; used with `urad-parking` |
 
 ## Flashing
 
